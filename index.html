@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCIALFAYA | Intelligence</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --accent: #ff3b3b; /* Faya Red */
+            --accent-glow: rgba(255, 59, 59, 0.4);
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 3D Canvas Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* UI Structure */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Login View */
+        #login-view {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 500px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px var(--accent-glow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        /* Dashboard View */
+        #dashboard-view {
+            display: none; /* Hidden by default */
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border);
+            object-fit: cover;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-display);
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover { color: white; border-color: white; }
+
+        /* Input Section */
+        .analyzer-input {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        input, select {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Results Section */
+        #results-area {
+            display: none;
+            opacity: 0;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .big-score {
+            font-size: 6rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .score-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+            padding-left: 1rem;
+        }
+
+        .insight-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .insight-title {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .insight-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .roadmap-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 1rem;
+        }
+
+        .step-number {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 4rem;
+        }
+        
+        .loader-bar {
+            width: 300px;
+            height: 2px;
+            background: var(--border);
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loader-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .loading-text {
+            font-family: var(--font-display);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .report-grid { grid-template-columns: 1fr; }
+            .input-group { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- WebGL Background -->
+    <div id="canvas-container"></div>
+
+    <div class="app-container">
+        
+        <!-- LOGIN VIEW -->
+        <section id="login-view">
+            <h1>SOCIALFAYA</h1>
+            <p class="subtitle">Engenharia de Análise de Redes Sociais.<br>Inteligência Artificial para crescimento orgânico e autoridade.</p>
+            <button id="btn-login" class="btn-primary">
+                <i class="fab fa-google"></i> Acessar Sistema
+            </button>
+        </section>
+
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view">
+            <header>
+                <div class="logo" style="font-family: var(--font-display); font-weight:700; font-size:1.5rem;">SOCIALFAYA</div>
+                <div class="user-profile">
+                    <img id="user-photo" src="" alt="User" class="user-avatar">
+                    <div style="text-align:right;">
+                        <div id="user-name" style="font-size:0.9rem; font-weight:600;"></div>
+                        <button id="btn-logout" class="btn-logout">Sair</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="analyzer-input">
+                <h2 style="font-family:var(--font-display); margin-bottom:2rem;">Nova Análise Estratégica</h2>
+                
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Link do Perfil</label>
+                        <input type="text" id="input-url" placeholder="ex: instagram.com/usuario">
+                    </div>
+                    <div class="input-field">
+                        <label>Nicho de Mercado</label>
+                        <select id="input-niche">
+                            <option value="marketing">Marketing Digital</option>
+                            <option value="fitness">Fitness & Saúde</option>
+                            <option value="tech">Tecnologia & Dev</option>
+                            <option value="lifestyle">Lifestyle & Moda</option>
+                            <option value="business">Negócios & Finanças</option>
+                            <option value="education">Educação</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Objetivo Principal</label>
+                        <select id="input-goal">
+                            <option value="growth">Crescimento de Audiência</option>
+                            <option value="sales">Vendas / Monetização</option>
+                            <option value="authority">Autoridade / Branding</option>
+                            <option value="community">Comunidade</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="btn-analyze" class="btn-primary" style="width:100%; justify-content:center;">
+                    Iniciar Varredura Neural
+                </button>
+            </div>
+
+            <!-- Loader -->
+            <div id="loading-area" class="loading-overlay">
+                <div class="loading-text" id="loading-msg">Conectando aos nós da rede...</div>
+                <div class="loader-bar">
+                    <div class="loader-progress"></div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="results-area">
+                <div class="report-grid">
+                    
+                    <!-- Left Column: Data -->
+                    <div>
+                        <div class="card">
+                            <div class="score-display">
+                                <div class="big-score" id="res-score">0</div>
+                                <div class="score-label">Social Health Score</div>
+                            </div>
+                            <!-- Chart Canvas -->
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Arquétipo Detectado</h3>
+                            <div id="res-archetype" style="font-size:1.2rem; color:var(--accent); font-weight:bold;"></div>
+                            <p id="res-archetype-desc" style="color:var(--text-muted); margin-top:0.5rem; font-size:0.9rem;"></p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Strategy -->
+                    <div>
+                        <div class="card">
+                            <h3>Diagnóstico de Posicionamento</h3>
+                            <div id="diagnosis-container">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Plano de Ação (90 Dias)</h3>
+                            <div id="roadmap-container">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Estratégia de Monetização</h3>
+                            <p id="monetization-strategy" class="insight-desc"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts: Three.js, GSAP, Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase & App Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRAA0MmW3o1okiP-sHxAtrAn0eMA6Q49s",
+            authDomain: "sociafya.firebaseapp.com",
+            projectId: "sociafya",
+            storageBucket: "sociafya.firebasestorage.app",
+            messagingSenderId: "293929905628",
+            appId: "1:293929905628:web:60f6ce2139cc0bcfbb7319"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // --- DOM ELEMENTS ---
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const btnLogin = document.getElementById('btn-login');
+        const btnLogout = document.getElementById('btn-logout');
+        const userName = document.getElementById('user-name');
+        const userPhoto = document.getElementById('user-photo');
+
+        // --- AUTH LOGIC ---
+        btnLogin.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then(async (result) => {
+                    const user = result.user;
+                    // Save user to Firestore
+                    await setDoc(doc(db, "users", user.uid), {
+                        name: user.displayName,
+                        email: user.email,
+                        lastLogin: serverTimestamp()
+                    }, { merge: true });
+                })
+                .catch((error) => {
+                    console.error("Login Error:", error);
+                    alert("Erro ao conectar com Google: " + error.message);
+                });
+        });
+
+        btnLogout.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                resetDashboard();
+            });
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                gsap.to(loginView, { opacity: 0, duration: 0.5, onComplete: () => {
+                    loginView.style.display = 'none';
+                    dashboardView.style.display = 'block';
+                    
+                    userName.textContent = user.displayName;
+                    userPhoto.src = user.photoURL;
+                    
+                    gsap.fromTo(dashboardView, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.8});
+                }});
+            } else {
+                // User is signed out
+                dashboardView.style.display = 'none';
+                loginView.style.display = 'flex';
+                gsap.to(loginView, {opacity: 1, duration: 0.5});
+            }
+        });
+
+        function resetDashboard() {
+            document.getElementById('results-area').style.display = 'none';
+            document.querySelector('.analyzer-input').style.display = 'block';
+            document.getElementById('input-url').value = '';
+        }
+
+        // --- ANALYZER LOGIC (SIMULATED AI) ---
+        const btnAnalyze = document.getElementById('btn-analyze');
+        const loadingArea = document.getElementById('loading-area');
+        const resultsArea = document.getElementById('results-area');
+        const loadingBar = document.querySelector('.loader-progress');
+        const loadingMsg = document.getElementById('loading-msg');
+
+        btnAnalyze.addEventListener('click', () => {
+            const url = document.getElementById('input-url').value;
+            if(!url) { alert("Por favor, insira um link de perfil."); return; }
+
+            // UI Transitions
+            gsap.to('.analyzer-input', {opacity: 0, duration: 0.5, display: 'none'});
+            loadingArea.style.display = 'flex';
+            
+            // Simulation Sequence
+            const messages = [
+                "Extraindo metadados...",
+                "Analisando padrões semânticos...",
+                "Calculando taxa de retenção...",
+                "Verificando autoridade digital...",
+                "Gerando estratégia neural..."
+            ];
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if(progress > 100) progress = 100;
+                
+                loadingBar.style.width = `${progress}%`;
+                
+                // Random message update
+                if(Math.random() > 0.7) {
+                    loadingMsg.innerText = messages[Math.floor(Math.random() * messages.length)];
+                }
+
+                if(progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(showResults, 500);
+                }
+            }, 200);
+        });
+
+        function showResults() {
+            loadingArea.style.display = 'none';
+            resultsArea.style.display = 'block';
+            gsap.to(resultsArea, {opacity: 1, duration: 1});
+
+            generateReport();
+        }
+
+        function generateReport() {
+            const niche = document.getElementById('input-niche').value;
+            const goal = document.getElementById('input-goal').value;
+
+            // 1. Score Generation (Randomized for demo)
+            const score = Math.floor(Math.random() * (92 - 65) + 65);
+            document.getElementById('res-score').innerText = score;
+            
+            // 2. Archetype Logic
+            const archetypes = {
+                'marketing': { name: "O Sábio Estrategista", desc: "Você vende conhecimento e clareza." },
+                'fitness': { name: "O Herói Transformador", desc: "Você vende a jornada de superação." },
+                'tech': { name: "O Criador Inovador", desc: "Você vende o futuro e a eficiência." },
+                'lifestyle': { name: "O Explorador Carismático", desc: "Você vende liberdade e experiências." },
+                'business': { name: "O Governante Líder", desc: "Você vende poder, ordem e sucesso." },
+                'education': { name: "O Mentor Cuidadoso", desc: "Você vende evolução e aprendizado." }
+            };
+            const arc = archetypes[niche] || archetypes['marketing'];
+            document.getElementById('res-archetype').innerText = arc.name;
+            document.getElementById('res-archetype-desc').innerText = arc.desc;
+
+            // 3. Radar Chart
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if(window.myRadar) window.myRadar.destroy(); // Clear previous
+            
+            window.myRadar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Clareza', 'Consistência', 'Autoridade', 'Engajamento', 'Narrativa', 'Viralidade'],
+                    datasets: [{
+                        label: 'Análise Atual',
+                        data: Array.from({length: 6}, () => Math.floor(Math.random() * 40) + 60),
+                        backgroundColor: 'rgba(255, 59, 59, 0.2)',
+                        borderColor: '#ff3b3b',
+                        pointBackgroundColor: '#fff',
+                    }]
+                },
+                options: {
+                    scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#888' } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 4. Diagnosis Generator
+            const diagnoses = [
+                { title: "Dissonância Narrativa", desc: "Seu conteúdo visual está premium, mas a legenda não conecta emocionalmente. Aplique a Lei da Conexão." },
+                { title: "Funil de Conteúdo", desc: "Você tem muito conteúdo de topo (viral), mas pouco conteúdo de meio (educação) para reter a audiência." },
+                { title: "Identidade Visual", desc: "Falta coesão na paleta de cores. O feed parece fragmentado, reduzindo a percepção de autoridade imediata." }
+            ];
+            
+            const diagContainer = document.getElementById('diagnosis-container');
+            diagContainer.innerHTML = '';
+            diagnoses.forEach(d => {
+                diagContainer.innerHTML += `
+                    <div class="insight-item">
+                        <div class="insight-title"><i class="fas fa-exclamation-circle" style="color:var(--accent)"></i> ${d.title}</div>
+                        <div class="insight-desc">${d.desc}</div>
+                    </div>
+                `;
+            });
+
+            // 5. Roadmap Generator
+            const roadmapSteps = [
+                { phase: "Fase 1 (Semana 1-4)", text: "Limpeza de base. Arquivar posts antigos irrelevantes. Redefinir Bio com promessa única clara." },
+                { phase: "Fase 2 (Semana 5-8)", text: "Implementação de frequência: 3 Reels/semana + 5 Stories/dia focados em quebra de objeção." },
+                { phase: "Fase 3 (Semana 9-12)", text: "Lançamento de produto High-Ticket ou Comunidade. Foco total em conversão." }
+            ];
+            
+            const roadContainer = document.getElementById('roadmap-container');
+            roadContainer.innerHTML = '';
+            roadmapSteps.forEach(step => {
+                roadContainer.innerHTML += `
+                    <div class="roadmap-step">
+                        <div class="step-number">${step.phase}</div>
+                        <div class="insight-desc">${step.text}</div>
+                    </div>
+                `;
+            });
+
+            // 6. Monetization
+            let monet = "";
+            if(goal === 'growth') monet = "Foco em Adsense (YouTube) e Parcerias de Marca (Publi). Criar Mídia Kit urgente.";
+            else if(goal === 'sales') monet = "Criar funil de vendas: Isca Digital (Ebook) -> Sequência de Email -> Produto Principal.";
+            else if(goal === 'authority') monet = "Mentoria Individual High-Ticket e Palestras. Posicionar-se como o 'Premium' do mercado.";
+            else monet = "Clube de Assinatura ou Área de Membros Exclusiva (Close Friends pago).";
+            
+            document.getElementById('monetization-strategy').innerText = monet;
+        }
+
+        // --- THREE.JS BACKGROUND (Visual Cinematic Effect) ---
+        const initThreeJS = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Particles / Network
+            const geometry = new THREE.BufferGeometry();
+            const particlesCount = 300; // Nodes count
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15; // Spread
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            // Material
+            const material = new THREE.PointsMaterial({
+                size: 0.03,
+                color: 0xff3b3b, // SocialFaya Red
+                transparent: true,
+                opacity: 0.8
+            });
+
+            // Lines connecting particles
+            const linesMaterial = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.15
+            });
+
+            const particlesMesh = new THREE.Points(geometry, material);
+            scene.add(particlesMesh);
+
+            // Create lines logic needs distinct geometry or heavy processing. 
+            // For performance, let's use a Wireframe Geometry wrapping a sphere for a "Globe" effect
+            const sphereGeo = new THREE.IcosahedronGeometry(4, 2);
+            const wireframe = new THREE.WireframeGeometry(sphereGeo);
+            const line = new THREE.LineSegments(wireframe);
+            line.material.depthTest = false;
+            line.material.opacity = 0.1;
+            line.material.transparent = true;
+            line.material.color = new THREE.Color(0xff3b3b);
+            scene.add(line);
+
+            camera.position.z = 5;
+
+            // Mouse interaction
+            let mouseX = 0;
+            let mouseY = 0;
+            document.addEventListener('mousemove', (event) => {
+                mouseX = event.clientX / window.innerWidth - 0.5;
+                mouseY = event.clientY / window.innerHeight - 0.5;
+            });
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                particlesMesh.rotation.y += 0.001;
+                particlesMesh.rotation.x += 0.001;
+                
+                line.rotation.y += 0.002;
+                line.rotation.x -= 0.001;
+
+                // Parallax effect
+                camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            // Responsive
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        initThreeJS();
+
+    </script>
+</body>
+  </html>
