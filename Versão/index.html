@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SocialFaya — Inteligência de Redes Sociais</title>
+<style>
+  :root {
+    --bg-primary: #020408;
+    --bg-secondary: #080d14;
+    --bg-card: #0d1520;
+    --bg-card2: #111a27;
+    --accent-blue: #0ea5e9;
+    --accent-purple: #8b5cf6;
+    --accent-pink: #ec4899;
+    --accent-green: #10b981;
+    --accent-gold: #f59e0b;
+    --text-primary: #f0f4f8;
+    --text-secondary: #94a3b8;
+    --text-muted: #4a5568;
+    --border: rgba(14,165,233,0.15);
+    --border2: rgba(139,92,246,0.2);
+    --glow-blue: 0 0 30px rgba(14,165,233,0.3);
+    --glow-purple: 0 0 30px rgba(139,92,246,0.3);
+    --glow-pink: 0 0 20px rgba(236,72,153,0.25);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+
+  body{
+    font-family:var(--font);
+    background:var(--bg-primary);
+    color:var(--text-primary);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* CANVAS BACKGROUND */
+  #bg-canvas{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  /* SCREENS */
+  .screen{
+    position:relative;
+    z-index:10;
+    min-height:100vh;
+  }
+
+  /* ============ AUTH SCREEN ============ */
+  #auth-screen{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:20px;
+  }
+
+  .auth-container{
+    width:100%;
+    max-width:480px;
+    position:relative;
+  }
+
+  .auth-logo{
+    text-align:center;
+    margin-bottom:40px;
+  }
+
+  .auth-logo .logo-icon{
+    width:72px;height:72px;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    border-radius:20px;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px;
+    box-shadow:var(--glow-blue);
+    font-size:32px;
+  }
+
+  .auth-logo h1{
+    font-size:2rem;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple),var(--accent-pink));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    letter-spacing:-0.5px;
+  }
+
+  .auth-logo p{
+    color:var(--text-secondary);
+    font-size:0.9rem;
+    margin-top:6px;
+  }
+
+  .auth-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:40px;
+    backdrop-filter:blur(20px);
+    box-shadow:0 24px 64px rgba(0,0,0,0.5),var(--glow-blue);
+  }
+
+  .auth-tabs{
+    display:flex;
+    background:var(--bg-secondary);
+    border-radius:12px;
+    padding:4px;
+    margin-bottom:32px;
+    gap:4px;
+  }
+
+  .auth-tab{
+    flex:1;
+    padding:10px;
+    text-align:center;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:0.875rem;
+    font-weight:600;
+    color:var(--text-secondary);
+    transition:all 0.3s ease;
+    border:none;
+    background:transparent;
+  }
+
+  .auth-tab.active{
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    color:#fff;
+    box-shadow:var(--glow-blue);
+  }
+
+  .auth-form{display:none;}
+  .auth-form.active{display:block;}
+
+  .form-group{
+    margin-bottom:20px;
+  }
+
+  .form-group label{
+    display:block;
+    font-size:0.8rem;
+    font-weight:600;
+    color:var(--text-secondary);
+    margin-bottom:8px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  .form-group input{
+    width:100%;
+    padding:14px 16px;
+    background:var(--bg-secondary);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--text-primary);
+    font-size:0.95rem;
+    font-family:var(--font);
+    transition:all 0.3s ease;
+    outline:none;
+  }
+
+  .form-group input:focus{
+    border-color:var(--accent-blue);
+    box-shadow:0 0 0 3px rgba(14,165,233,0.15);
+  }
+
+  .form-group input::placeholder{color:var(--text-muted);}
+
+  .btn-primary{
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    border:none;
+    border-radius:var(--radius-sm);
+    color:#fff;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    font-family:var(--font);
+    letter-spacing:0.3px;
+  }
+
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--glow-purple);
+  }
+
+  .btn-primary:active{transform:translateY(0);}
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:24px 0;
+    color:var(--text-muted);
+    font-size:0.8rem;
+  }
+
+  .divider::before,.divider::after{
+    content:'';flex:1;
+    height:1px;
+    background:var(--border);
+  }
+
+  .btn-google{
+    width:100%;
+    padding:14px;
+    background:transparent;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--text-primary);
+    font-size:0.95rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    font-family:var(--font);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+
+  .btn-google:hover{
+    border-color:var(--accent-blue);
+    background:rgba(14,165,233,0.05);
+    transform:translateY(-1px);
+  }
+
+  .btn-google svg{width:20px;height:20px;}
+
+  .auth-error{
+    display:none;
+    background:rgba(239,68,68,0.1);
+    border:1px solid rgba(239,68,68,0.3);
+    border-radius:8px;
+    padding:12px 16px;
+    color:#f87171;
+    font-size:0.85rem;
+    margin-bottom:16px;
+  }
+
+  .auth-success{
+    display:none;
+    background:rgba(16,185,129,0.1);
+    border:1px solid rgba(16,185,129,0.3);
+    border-radius:8px;
+    padding:12px 16px;
+    color:#34d399;
+    font-size:0.85rem;
+    margin-bottom:16px;
+  }
+
+  /* ============ APP SCREEN ============ */
+  #app-screen{display:none;}
+
+  /* NAVBAR */
+  .navbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(2,4,8,0.85);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    padding:0 24px;
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .nav-logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:900;
+    font-size:1.1rem;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+
+  .nav-logo .logo-mini{
+    width:32px;height:32px;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;
+  }
+
+  .nav-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .user-badge{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:50px;
+    padding:6px 14px 6px 6px;
+  }
+
+  .user-avatar{
+    width:30px;height:30px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;
+    font-weight:700;
+    overflow:hidden;
+  }
+
+  .user-avatar img{width:100%;height:100%;object-fit:cover;}
+
+  .user-name{
+    font-size:0.8rem;
+    font-weight:600;
+    color:var(--text-primary);
+    max-width:120px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .btn-logout{
+    padding:8px 16px;
+    background:rgba(239,68,68,0.1);
+    border:1px solid rgba(239,68,68,0.3);
+    border-radius:8px;
+    color:#f87171;
+    font-size:0.8rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    font-family:var(--font);
+  }
+
+  .btn-logout:hover{
+    background:rgba(239,68,68,0.2);
+    transform:translateY(-1px);
+  }
+
+  /* HERO */
+  .hero{
+    padding:80px 24px 60px;
+    text-align:center;
+    max-width:800px;
+    margin:0 auto;
+  }
+
+  .hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(14,165,233,0.1);
+    border:1px solid rgba(14,165,233,0.3);
+    border-radius:50px;
+    padding:6px 16px;
+    font-size:0.75rem;
+    font-weight:700;
+    color:var(--accent-blue);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:24px;
+  }
+
+  .hero h1{
+    font-size:clamp(2rem,5vw,3.5rem);
+    font-weight:900;
+    line-height:1.1;
+    margin-bottom:20px;
+    background:linear-gradient(135deg,#fff 30%,var(--accent-blue) 60%,var(--accent-purple));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+
+  .hero p{
+    font-size:1.1rem;
+    color:var(--text-secondary);
+    max-width:560px;
+    margin:0 auto 40px;
+    line-height:1.7;
+  }
+
+  /* ANALYZER FORM */
+  .analyzer-section{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 24px 60px;
+  }
+
+  .analyzer-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:40px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.4);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .analyzer-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent-blue),var(--accent-purple),transparent);
+  }
+
+  .analyzer-title{
+    font-size:1.2rem;
+    font-weight:800;
+    margin-bottom:8px;
+    color:var(--text-primary);
+  }
+
+  .analyzer-subtitle{
+    font-size:0.85rem;
+    color:var(--text-secondary);
+    margin-bottom:32px;
+  }
+
+  .network-selector{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:28px;
+  }
+
+  .net-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 16px;
+    background:var(--bg-secondary);
+    border:1px solid var(--border);
+    border-radius:50px;
+    color:var(--text-secondary);
+    font-size:0.8rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    font-family:var(--font);
+  }
+
+  .net-btn:hover{
+    border-color:var(--accent-blue);
+    color:var(--accent-blue);
+  }
+
+  .net-btn.selected{
+    color:#fff;
+    border-color:transparent;
+  }
+
+  .net-btn[data-net="instagram"].selected{background:linear-gradient(135deg,#e1306c,#833ab4,#fd1d1d);}
+  .net-btn[data-net="youtube"].selected{background:#ff0000;}
+  .net-btn[data-net="tiktok"].selected{background:linear-gradient(135deg,#000,#69C9D0);}
+  .net-btn[data-net="twitter"].selected{background:#1DA1F2;}
+  .net-btn[data-net="facebook"].selected{background:#1877F2;}
+  .net-btn[data-net="linkedin"].selected{background:#0A66C2;}
+  .net-btn[data-net="tumblr"].selected{background:#35465C;}
+
+  .form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-bottom:16px;
+  }
+
+  @media(max-width:640px){.form-row{grid-template-columns:1fr;}}
+
+  .input-group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .input-group label{
+    font-size:0.75rem;
+    font-weight:700;
+    color:var(--text-secondary);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  .input-group input,
+  .input-group select,
+  .input-group textarea{
+    padding:12px 16px;
+    background:var(--bg-secondary);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--text-primary);
+    font-size:0.9rem;
+    font-family:var(--font);
+    transition:all 0.3s ease;
+    outline:none;
+  }
+
+  .input-group input:focus,
+  .input-group select:focus,
+  .input-group textarea:focus{
+    border-color:var(--accent-blue);
+    box-shadow:0 0 0 3px rgba(14,165,233,0.1);
+  }
+
+  .input-group input::placeholder,
+  .input-group textarea::placeholder{color:var(--text-muted);}
+
+  .input-group select option{background:var(--bg-secondary);}
+
+  .input-group textarea{
+    resize:vertical;
+    min-height:80px;
+  }
+
+  .btn-analyze{
+    width:100%;
+    padding:18px;
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple),var(--accent-pink));
+    border:none;
+    border-radius:var(--radius-sm);
+    color:#fff;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:all 0.4s ease;
+    font-family:var(--font);
+    letter-spacing:0.5px;
+    position:relative;
+    overflow:hidden;
+    margin-top:8px;
+  }
+
+  .btn-analyze::before{
+    content:'';
+    position:absolute;
+    top:0;left:-100%;
+    width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+    transition:left 0.5s ease;
+  }
+
+  .btn-analyze:hover::before{left:100%;}
+  .btn-analyze:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(139,92,246,0.4);}
+
+  /* LOADING */
+  .loading-overlay{
+    display:none;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    background:rgba(2,4,8,0.9);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:24px;
+    backdrop-filter:blur(10px);
+  }
+
+  .loading-overlay.active{display:flex;}
+
+  .loading-ring{
+    width:80px;height:80px;
+    border:3px solid var(--border);
+    border-top-color:var(--accent-blue);
+    border-right-color:var(--accent-purple);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .loading-steps{
+    text-align:center;
+  }
+
+  .loading-steps h3{
+    font-size:1.1rem;
+    font-weight:700;
+    color:var(--text-primary);
+    margin-bottom:8px;
+  }
+
+  .loading-step{
+    font-size:0.85rem;
+    color:var(--text-secondary);
+    animation:pulse 1.5s ease infinite;
+  }
+
+  @keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+  /* REPORT */
+  #report-section{
+    display:none;
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  .report-header{
+    text-align:center;
+    padding:60px 0 40px;
+  }
+
+  .report-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(16,185,129,0.1);
+    border:1px solid rgba(16,185,129,0.3);
+    border-radius:50px;
+    padding:6px 16px;
+    font-size:0.75rem;
+    font-weight:700;
+    color:var(--accent-green);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:16px;
+  }
+
+  .report-header h2{
+    font-size:clamp(1.5rem,3vw,2.5rem);
+    font-weight:900;
+    background:linear-gradient(135deg,#fff,var(--accent-blue));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    margin-bottom:12px;
+  }
+
+  .report-header p{
+    color:var(--text-secondary);
+    font-size:0.95rem;
+  }
+
+  /* SCORE CARD */
+  .score-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px;
+    margin-bottom:32px;
+  }
+
+  .score-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    transition:transform 0.3s ease;
+  }
+
+  .score-card:hover{transform:translateY(-4px);}
+
+  .score-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+  }
+
+  .score-card.blue::before{background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple));}
+  .score-card.purple::before{background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink));}
+  .score-card.green::before{background:linear-gradient(90deg,var(--accent-green),var(--accent-blue));}
+  .score-card.gold::before{background:linear-gradient(90deg,var(--accent-gold),var(--accent-pink));}
+
+  .score-number{
+    font-size:3rem;
+    font-weight:900;
+    line-height:1;
+    margin-bottom:4px;
+  }
+
+  .score-card.blue .score-number{color:var(--accent-blue);}
+  .score-card.purple .score-number{color:var(--accent-purple);}
+  .score-card.green .score-number{color:var(--accent-green);}
+  .score-card.gold .score-number{color:var(--accent-gold);}
+
+  .score-label{
+    font-size:0.75rem;
+    font-weight:700;
+    color:var(--text-secondary);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-bottom:8px;
+  }
+
+  .score-bar{
+    height:4px;
+    background:var(--border);
+    border-radius:2px;
+    overflow:hidden;
+    margin-top:12px;
+  }
+
+  .score-bar-fill{
+    height:100%;
+    border-radius:2px;
+    transition:width 1.5s ease;
+  }
+
+  .blue .score-bar-fill{background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple));}
+  .purple .score-bar-fill{background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink));}
+  .green .score-bar-fill{background:linear-gradient(90deg,var(--accent-green),var(--accent-blue));}
+  .gold .score-bar-fill{background:linear-gradient(90deg,var(--accent-gold),var(--accent-pink));}
+
+  /* REPORT SECTIONS */
+  .report-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-bottom:20px;
+  }
+
+  @media(max-width:768px){.report-grid{grid-template-columns:1fr;}}
+
+  .report-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+    transition:all 0.3s ease;
+  }
+
+  .report-card:hover{
+    border-color:rgba(14,165,233,0.3);
+    box-shadow:var(--glow-blue);
+  }
+
+  .report-card.full-width{
+    grid-column:1/-1;
+  }
+
+  .report-card h3{
+    font-size:0.95rem;
+    font-weight:800;
+    color:var(--text-primary);
+    margin-bottom:4px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .report-card .card-sub{
+    font-size:0.75rem;
+    color:var(--text-secondary);
+    margin-bottom:20px;
+  }
+
+  .tag-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .tag{
+    padding:6px 14px;
+    border-radius:50px;
+    font-size:0.75rem;
+    font-weight:700;
+  }
+
+  .tag-success{
+    background:rgba(16,185,129,0.1);
+    border:1px solid rgba(16,185,129,0.3);
+    color:var(--accent-green);
+  }
+
+  .tag-warning{
+    background:rgba(245,158,11,0.1);
+    border:1px solid rgba(245,158,11,0.3);
+    color:var(--accent-gold);
+  }
+
+  .tag-danger{
+    background:rgba(239,68,68,0.1);
+    border:1px solid rgba(239,68,68,0.3);
+    color:#f87171;
+  }
+
+  .tag-info{
+    background:rgba(14,165,233,0.1);
+    border:1px solid rgba(14,165,233,0.3);
+    color:var(--accent-blue);
+  }
+
+  .tag-purple{
+    background:rgba(139,92,246,0.1);
+    border:1px solid rgba(139,92,246,0.3);
+    color:var(--accent-purple);
+  }
+
+  .list-items{
+    list-style:none;
+  }
+
+  .list-items li{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    font-size:0.875rem;
+    color:var(--text-secondary);
+    line-height:1.5;
+  }
+
+  .list-items li:last-child{border-bottom:none;}
+
+  .list-items li .icon{
+    font-size:14px;
+    margin-top:1px;
+    flex-shrink:0;
+  }
+
+  /* PHASE CARDS */
+  .phases-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+    margin-bottom:20px;
+  }
+
+  .phase-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+    transition:all 0.3s ease;
+  }
+
+  .phase-card:hover{transform:translateY(-4px);}
+
+  .phase-card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+  }
+
+  .phase-1::before{background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple));}
+  .phase-2::before{background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink));}
+  .phase-3::before{background:linear-gradient(90deg,var(--accent-green),var(--accent-gold));}
+
+  .phase-number{
+    font-size:0.7rem;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--text-muted);
+    margin-bottom:8px;
+  }
+
+  .phase-title{
+    font-size:1.1rem;
+    font-weight:800;
+    color:var(--text-primary);
+    margin-bottom:4px;
+  }
+
+  .phase-period{
+    font-size:0.75rem;
+    color:var(--text-secondary);
+    margin-bottom:20px;
+  }
+
+  /* CONTENT IDEAS */
+  .content-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:12px;
+  }
+
+  .content-idea{
+    background:var(--bg-card2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:16px;
+    transition:all 0.3s ease;
+    cursor:default;
+  }
+
+  .content-idea:hover{
+    border-color:var(--accent-purple);
+    transform:translateY(-2px);
+  }
+
+  .content-idea .idea-icon{font-size:20px;margin-bottom:8px;}
+
+  .content-idea .idea-title{
+    font-size:0.8rem;
+    font-weight:700;
+    color:var(--text-primary);
+    margin-bottom:4px;
+  }
+
+  .content-idea .idea-desc{
+    font-size:0.72rem;
+    color:var(--text-secondary);
+    line-height:1.4;
+  }
+
+  .viral-bar{
+    height:4px;
+    background:var(--border);
+    border-radius:2px;
+    margin-top:10px;
+    overflow:hidden;
+  }
+
+  .viral-fill{
+    height:100%;
+    border-radius:2px;
+    background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink));
+  }
+
+  .viral-pct{
+    font-size:0.68rem;
+    color:var(--accent-pink);
+    font-weight:700;
+    margin-top:4px;
+  }
+
+  /* MONETIZATION */
+  .mono-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:12px;
+  }
+
+  .mono-card{
+    background:var(--bg-card2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:20px;
+    text-align:center;
+    transition:all 0.3s ease;
+  }
+
+  .mono-card:hover{
+    border-color:var(--accent-gold);
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(245,158,11,0.15);
+  }
+
+  .mono-icon{font-size:28px;margin-bottom:10px;}
+  .mono-name{font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
+  .mono-potential{font-size:0.75rem;color:var(--accent-gold);font-weight:600;}
+
+  /* LAWS */
+  .laws-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .law-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 16px;
+    background:var(--bg-card2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    transition:all 0.3s ease;
+  }
+
+  .law-item:hover{border-color:rgba(14,165,233,0.3);}
+
+  .law-dot{
+    width:10px;height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+
+  .law-name{font-size:0.85rem;font-weight:700;color:var(--text-primary);flex:1;}
+
+  .law-status{
+    font-size:0.72rem;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:50px;
+  }
+
+  .law-ok{background:rgba(16,185,129,0.1);color:var(--accent-green);}
+  .law-warn{background:rgba(245,158,11,0.1);color:var(--accent-gold);}
+  .law-bad{background:rgba(239,68,68,0.1);color:#f87171;}
+
+  /* CANVAS CHART */
+  .chart-container{
+    position:relative;
+    height:200px;
+    margin-top:16px;
+  }
+
+  .chart-canvas{
+    width:100%;
+    height:100%;
+    border-radius:8px;
+  }
+
+  /* ARCHETYPES */
+  .archetype-display{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    padding:20px;
+    background:var(--bg-card2);
+    border:1px solid var(--border2);
+    border-radius:var(--radius-sm);
+  }
+
+  .archetype-icon{
+    font-size:48px;
+    flex-shrink:0;
+  }
+
+  .archetype-info h4{
+    font-size:1.1rem;
+    font-weight:800;
+    color:var(--accent-purple);
+    margin-bottom:4px;
+  }
+
+  .archetype-info p{
+    font-size:0.8rem;
+    color:var(--text-secondary);
+    line-height:1.5;
+  }
+
+  /* BACK BTN */
+  .btn-back{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 20px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--text-secondary);
+    font-size:0.85rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    font-family:var(--font);
+    margin-bottom:40px;
+  }
+
+  .btn-back:hover{
+    border-color:var(--accent-blue);
+    color:var(--accent-blue);
+  }
+
+  /* TOAST */
+  .toast{
+    position:fixed;
+    bottom:24px;right:24px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:14px 20px;
+    color:var(--text-primary);
+    font-size:0.85rem;
+    font-weight:600;
+    z-index:9999;
+    transform:translateY(100px);
+    opacity:0;
+    transition:all 0.4s ease;
+    max-width:320px;
+  }
+
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  /* PULSE ANIMATION */
+  @keyframes fadeInUp{
+    from{opacity:0;transform:translateY(30px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  .fade-in{animation:fadeInUp 0.6s ease forwards;}
+
+  /* STARS */
+  .stars-bg{
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    pointer-events:none;
+    z-index:1;
+    overflow:hidden;
+  }
+
+  .star{
+    position:absolute;
+    width:2px;height:2px;
+    background:#fff;
+    border-radius:50%;
+    animation:twinkle var(--duration,3s) ease infinite var(--delay,0s);
+  }
+
+  @keyframes twinkle{
+    0%,100%{opacity:0.1;}
+    50%{opacity:0.8;}
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:640px){
+    .auth-card{padding:28px 20px;}
+    .analyzer-card{padding:24px 20px;}
+    .report-card{padding:20px 16px;}
+    .hero{padding:48px 16px 40px;}
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg-primary);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent-blue);}
+
+  /* NETWORK ICONS */
+  .net-icon{font-size:14px;}
+
+  /* SECTION LABELS */
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.7rem;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--text-muted);
+    margin-bottom:16px;
+    margin-top:32px;
+  }
+
+  .section-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--border);
+  }
+
+  /* GRADIENT TEXT */
+  .grad-blue{
+    background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+
+  .grad-gold{
+    background:linear-gradient(135deg,var(--accent-gold),var(--accent-pink));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+</style>
+</head>
+<body>
+
+<!-- CANVAS BG -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- STARS -->
+<div class="stars-bg" id="stars"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-ring"></div>
+  <div class="loading-steps">
+    <h3>🧠 Analisando perfil...</h3>
+    <div class="loading-step" id="loading-step">Coletando dados do perfil</div>
+  </div>
+</div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div class="screen" id="auth-screen">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="logo-icon">🔮</div>
+      <h1>SocialFaya</h1>
+      <p>Inteligência Estratégica para Redes Sociais</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Entrar</button>
+        <button class="auth-tab" onclick="switchTab('register')">Criar Conta</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="auth-form active" id="form-login">
+        <div class="auth-error" id="login-error"></div>
+        <div class="auth-success" id="login-success"></div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="login-password" placeholder="••••••••">
+        </div>
+        <button class="btn-primary" onclick="loginEmail()">
+          ✨ Entrar no SocialFaya
+        </button>
+
+        <div class="divider">ou</div>
+
+        <button class="btn-google" onclick="loginGoogle()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continuar com Google
+        </button>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="auth-form" id="form-register">
+        <div class="auth-error" id="register-error"></div>
+        <div class="auth-success" id="register-success"></div>
+
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="register-name" placeholder="Seu nome">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="register-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="register-password" placeholder="mínimo 6 caracteres">
+        </div>
+        <button class="btn-primary" onclick="registerEmail()">
+          🚀 Criar Conta Grátis
+        </button>
+
+        <div class="divider">ou</div>
+
+        <button class="btn-google" onclick="loginGoogle()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Registrar com Google
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SCREEN ============ -->
+<div class="screen" id="app-screen">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="logo-mini">🔮</div>
+      SocialFaya
+    </div>
+    <div class="nav-right">
+      <div class="user-badge">
+        <div class="user-avatar" id="user-avatar-nav">U</div>
+        <span class="user-name" id="user-name-nav">Usuário</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- ANALYZER VIEW -->
+  <div id="analyzer-view">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">✦ IA Estratégica</div>
+      <h1>Analise Qualquer<br>Perfil Social</h1>
+      <p>Diagnóstico inteligente de posicionamento, crescimento e monetização para Instagram, YouTube, TikTok, LinkedIn e mais.</p>
+    </div>
+
+    <!-- FORM -->
+    <div class="analyzer-section">
+      <div class="analyzer-card">
+        <div class="analyzer-title">🔍 Investigador de Perfil</div>
+        <div class="analyzer-subtitle">Insira os dados do perfil que deseja analisar</div>
+
+        <!-- NETWORK SELECTOR -->
+        <div class="network-selector">
+          <button class="net-btn selected" data-net="instagram" onclick="selectNetwork(this)">
+            <span class="net-icon">📷</span> Instagram
+          </button>
+          <button class="net-btn" data-net="youtube" onclick="selectNetwork(this)">
+            <span class="net-icon">▶️</span> YouTube
+          </button>
+          <button class="net-btn" data-net="tiktok" onclick="selectNetwork(this)">
+            <span class="net-icon">🎵</span> TikTok
+          </button>
+          <button class="net-btn" data-net="twitter" onclick="selectNetwork(this)">
+            <span class="net-icon">🐦</span> X/Twitter
+          </button>
+          <button class="net-btn" data-net="facebook" onclick="selectNetwork(this)">
+            <span class="net-icon">👤</span> Facebook
+          </button>
+          <button class="net-btn" data-net="linkedin" onclick="selectNetwork(this)">
+            <span class="net-icon">💼</span> LinkedIn
+          </button>
+          <button class="net-btn" data-net="tumblr" onclick="selectNetwork(this)">
+            <span class="net-icon">📝</span> Tumblr
+          </button>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>🔗 Link ou Username do Perfil</label>
+            <input type="text" id="profile-url" placeholder="@usuario ou link completo">
+          </div>
+          <div class="input-group">
+            <label>🎯 Nicho / Mercado</label>
+            <input type="text" id="profile-niche" placeholder="Ex: Fitness, Marketing, Culinária">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>🏢 Tipo de Negócio</label>
+            <select id="business-type">
+              <option value="">Selecionar tipo...</option>
+              <option value="creator">Creator / Influenciador</option>
+              <option value="coach">Coach / Mentor</option>
+              <option value="empresa">Empresa / Marca</option>
+              <option value="profissional">Profissional Liberal</option>
+              <option value="infoprodutor">Infoprodutor</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="startup">Startup / Tecnologia</option>
+              <option value="artista">Artista / Músico</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>🚀 Objetivo Principal</label>
+            <select id="main-goal">
+              <option value="">Selecionar objetivo...</option>
+              <option value="audiencia">Crescer Audiência</option>
+              <option value="monetizar">Monetizar Conteúdo</option>
+              <option value="vender">Vender Serviços/Produtos</option>
+              <option value="autoridade">Criar Autoridade</option>
+              <option value="leads">Gerar Leads</option>
+              <option value="comunidade">Construir Comunidade</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-bottom:20px;">
+          <label>📊 Dados Adicionais (seguidores, engajamento, frequência de posts, etc.)</label>
+          <textarea id="additional-info" placeholder="Ex: 5.000 seguidores, taxa de engajamento ~3%, posta 2x por semana, vende curso online de R$297..."></textarea>
+        </div>
+
+        <button class="btn-analyze" onclick="runAnalysis()">
+          🧠 Iniciar Análise Estratégica Completa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORT VIEW -->
+  <div id="report-section">
+    <div style="max-width:1100px;margin:0 auto;padding:0 24px;">
+      <button class="btn-back" onclick="backToAnalyzer()">← Nova Análise</button>
+    </div>
+
+    <div class="report-header">
+      <div class="report-badge">✅ Análise Concluída</div>
+      <h2 id="report-profile-name">@perfil analisado</h2>
+      <p id="report-subtitle">Relatório estratégico completo gerado pela IA do SocialFaya</p>
+    </div>
+
+    <div id="report-section-inner" style="max-width:1100px;margin:0 auto;padding:0 24px 80px;">
+
+      <!-- SCORES -->
+      <div class="section-label">Pontuação Geral</div>
+      <div class="score-grid" id="score-grid"></div>
+
+      <!-- ARCHETYPE -->
+      <div class="section-label">Arquétipo de Marca</div>
+      <div class="report-card fade-in" id="archetype-card"></div>
+
+      <!-- LAWS -->
+      <div class="section-label">Leis Universais de Crescimento</div>
+      <div class="report-card fade-in" id="laws-card"></div>
+
+      <!-- STRONG + WEAK -->
+      <div class="section-label">Diagnóstico</div>
+      <div class="report-grid">
+        <div class="report-card fade-in" id="strengths-card"></div>
+        <div class="report-card fade-in" id="weaknesses-card"></div>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-card fade-in" id="opportunities-card"></div>
+        <div class="report-card fade-in" id="errors-card"></div>
+      </div>
+
+      <!-- GROWTH CHART -->
+      <div class="section-label">Projeção de Crescimento</div>
+      <div class="report-card full-width fade-in" id="growth-card"></div>
+
+      <!-- CONTENT STRATEGY -->
+      <div class="section-label">Estratégia de Conteúdo</div>
+      <div class="report-card full-width fade-in" id="content-card"></div>
+
+      <!-- VIRAL IDEAS -->
+      <div class="section-label">Ideias Virais — AI Predictor</div>
+      <div class="report-card full-width fade-in" id="viral-card"></div>
+
+      <!-- 90 DAYS -->
+      <div class="section-label">Plano 90 Dias</div>
+      <div class="phases-grid" id="phases-grid"></div>
+
+      <!-- MONETIZATION -->
+      <div class="section-label">Estratégia de Monetização</div>
+      <div class="report-card full-width fade-in" id="mono-card"></div>
+
+      <!-- SCRIPT -->
+      <div class="section-label">Estrutura de Roteiro para Vídeo</div>
+      <div class="report-card full-width fade-in" id="script-card"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE + APP JS -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged,
+         updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBRAA0MmW3o1okiP-sHxAtrAn0eMA6Q49s",
+  authDomain: "sociafya.firebaseapp.com",
+  projectId: "sociafya",
+  storageBucket: "sociafya.firebasestorage.app",
+  messagingSenderId: "293929905628",
+  appId: "1:293929905628:web:60f6ce2139cc0bcfbb7319"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+// ---- Expose to global ----
+window._auth = auth;
+window._db = db;
+window._googleProvider = googleProvider;
+window._signInWithEmailAndPassword = signInWithEmailAndPassword;
+window._createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+window._signInWithPopup = signInWithPopup;
+window._signOut = signOut;
+window._updateProfile = updateProfile;
+window._doc = doc;
+window._setDoc = setDoc;
+window._getDoc = getDoc;
+window._serverTimestamp = serverTimestamp;
+
+// Auth state observer
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    showApp(user);
+  } else {
+    showAuth();
+  }
+});
+</script>
+
+<script>
+// ============================================================
+// CANVAS BACKGROUND — Particle Network
+// ============================================================
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[], mouse={x:0,y:0};
+  const N = 80;
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for(let i=0;i<N;i++){
+    particles.push({
+      x: Math.random()*2000, y: Math.random()*2000,
+      vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3,
+      r: Math.random()*1.5+0.5,
+      a: Math.random()
+    });
+  }
+
+  document.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Update
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>W) p.vx*=-1;
+      if(p.y<0||p.y>H) p.vy*=-1;
+    });
+    // Draw connections
+    for(let i=0;i<N;i++){
+      for(let j=i+1;j<N;j++){
+        const dx=particles[i].x-particles[j].x;
+        const dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<150){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(14,165,233,${(1-dist/150)*0.15})`;
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+      // Mouse connection
+      const dx=particles[i].x-mouse.x;
+      const dy=particles[i].y-mouse.y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<200){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(139,92,246,${(1-dist/200)*0.3})`;
+        ctx.lineWidth=0.8;
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(mouse.x,mouse.y);
+        ctx.stroke();
+      }
+      // Dot
+      ctx.beginPath();
+      ctx.arc(particles[i].x,particles[i].y,particles[i].r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(14,165,233,${particles[i].a*0.5})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // Stars
+  const starsEl = document.getElementById('stars');
+  for(let i=0;i<100;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    s.style.setProperty('--duration',(2+Math.random()*4)+'s');
+    s.style.setProperty('--delay',(Math.random()*4)+'s');
+    s.style.opacity=Math.random()*0.5;
+    starsEl.appendChild(s);
+  }
+})();
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showToast(msg, color='#0ea5e9'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function showLoading(show){
+  document.getElementById('loading').classList.toggle('active', show);
+}
+
+function setLoadingStep(txt){
+  document.getElementById('loading-step').textContent = txt;
+}
+
+// ============================================================
+// AUTH SCREENS
+// ============================================================
+function showApp(user){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  // Set user info in navbar
+  const name = user.displayName || user.email.split('@')[0];
+  document.getElementById('user-name-nav').textContent = name;
+  const av = document.getElementById('user-avatar-nav');
+  if(user.photoURL){
+    av.innerHTML=`<img src="${user.photoURL}" alt="avatar">`;
+  } else {
+    av.textContent = name[0].toUpperCase();
+  }
+}
+
+function showAuth(){
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
+}
+
+window.switchTab = function(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register'));
+  });
+  document.querySelectorAll('.auth-form').forEach((f,i)=>{
+    f.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register'));
+  });
+};
+
+function showError(id, msg){
+  const el=document.getElementById(id);
+  el.textContent=msg;
+  el.style.display='block';
+  setTimeout(()=>{el.style.display='none';},4000);
+}
+
+function showSuccess(id, msg){
+  const el=document.getElementById(id);
+  el.textContent=msg;
+  el.style.display='block';
+}
+
+window.loginEmail = async function(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  if(!email||!pass){showError('login-error','Preencha email e senha.');return;}
+  try{
+    showLoading(true);
+    await window._signInWithEmailAndPassword(window._auth, email, pass);
+    showLoading(false);
+    showToast('✅ Login realizado!','#10b981');
+  } catch(e){
+    showLoading(false);
+    const msgs={
+      'auth/user-not-found':'Usuário não encontrado.',
+      'auth/wrong-password':'Senha incorreta.',
+      'auth/invalid-email':'Email inválido.',
+      'auth/too-many-requests':'Muitas tentativas. Tente mais tarde.',
+      'auth/invalid-credential':'Email ou senha incorretos.'
+    };
+    showError('login-error', msgs[e.code]||'Erro ao fazer login.');
+  }
+};
+
+window.registerEmail = async function(){
+  const name=document.getElementById('register-name').value.trim();
+  const email=document.getElementById('register-email').value.trim();
+  const pass=document.getElementById('register-password').value;
+  if(!name||!email||!pass){showError('register-error','Preencha todos os campos.');return;}
+  if(pass.length<6){showError('register-error','Senha mínimo 6 caracteres.');return;}
+  try{
+    showLoading(true);
+    const cred = await window._createUserWithEmailAndPassword(window._auth, email, pass);
+    await window._updateProfile(cred.user,{displayName:name});
+    // Save to Firestore
+    await window._setDoc(window._doc(window._db,'users',cred.user.uid),{
+      name, email,
+      createdAt: window._serverTimestamp(),
+      plan:'free', analyses:0
+    });
+    showLoading(false);
+    showToast('🎉 Conta criada! Bem-vindo ao SocialFaya!','#10b981');
+  } catch(e){
+    showLoading(false);
+    const msgs={
+      'auth/email-already-in-use':'Email já cadastrado.',
+      'auth/invalid-email':'Email inválido.',
+      'auth/weak-password':'Senha muito fraca.'
+    };
+    showError('register-error', msgs[e.code]||'Erro ao criar conta.');
+  }
+};
+
+window.loginGoogle = async function(){
+  try{
+    showLoading(true);
+    const result = await window._signInWithPopup(window._auth, window._googleProvider);
+    const user = result.user;
+    // Save/update in Firestore
+    const ref = window._doc(window._db,'users',user.uid);
+    const snap = await window._getDoc(ref);
+    if(!snap.exists()){
+      await window._setDoc(ref,{
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+        createdAt: window._serverTimestamp(),
+        plan:'free', analyses:0
+      });
+    }
+    showLoading(false);
+    showToast('✅ Login com Google realizado!','#10b981');
+  } catch(e){
+    showLoading(false);
+    if(e.code!=='auth/popup-closed-by-user'){
+      showToast('Erro ao logar com Google.','#f87171');
+    }
+  }
+};
+
+window.logout = async function(){
+  try{
+    await window._signOut(window._auth);
+    showToast('Até logo! 👋','#94a3b8');
+  } catch(e){
+    showToast('Erro ao sair.','#f87171');
+  }
+};
+
+// ============================================================
+// NETWORK SELECTOR
+// ============================================================
+let selectedNetwork = 'instagram';
+
+window.selectNetwork = function(btn){
+  document.querySelectorAll('.net-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedNetwork = btn.dataset.net;
+};
+
+// ============================================================
+// ANALYZER
+// ============================================================
+window.backToAnalyzer = function(){
+  document.getElementById('report-section').style.display='none';
+  document.getElementById('analyzer-view').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+window.runAnalysis = async function(){
+  const profileUrl = document.getElementById('profile-url').value.trim();
+  const niche = document.getElementById('profile-niche').value.trim();
+  const bizType = document.getElementById('business-type').value;
+  const goal = document.getElementById('main-goal').value;
+  const extra = document.getElementById('additional-info').value.trim();
+
+  if(!profileUrl){showToast('⚠️ Insira o link ou username do perfil.','#f59e0b');return;}
+
+  showLoading(true);
+
+  const steps=[
+    'Coletando dados do perfil...',
+    'Analisando posicionamento digital...',
+    'Avaliando estratégia de conteúdo...',
+    'Calculando potencial de crescimento...',
+    'Gerando plano de monetização...',
+    'Construindo relatório estratégico...',
+    'Finalizando diagnóstico...'
+  ];
+
+  let i=0;
+  const stepInterval = setInterval(()=>{
+    if(i<steps.length){ setLoadingStep(steps[i]); i++; }
+  },600);
+
+  await new Promise(r=>setTimeout(r,4500));
+  clearInterval(stepInterval);
+  showLoading(false);
+
+  const data = generateAnalysis({profileUrl, niche, bizType, goal, extra, network: selectedNetwork});
+  renderReport(data);
+};
+
+// ============================================================
+// ANALYSIS ENGINE
+// ============================================================
+function generateAnalysis({profileUrl, niche, bizType, goal, extra, network}){
+  const netData = {
+    instagram:{name:'Instagram',icon:'📷',color:'#e1306c'},
+    youtube:{name:'YouTube',icon:'▶️',color:'#ff0000'},
+    tiktok:{name:'TikTok',icon:'🎵',color:'#69C9D0'},
+    twitter:{name:'X/Twitter',icon:'🐦',color:'#1DA1F2'},
+    facebook:{name:'Facebook',icon:'👤',color:'#1877F2'},
+    linkedin:{name:'LinkedIn',icon:'💼',color:'#0A66C2'},
+    tumblr:{name:'Tumblr',icon:'📝',color:'#35465C'}
+  };
+
+  const archetypes = [
+    {name:'Mentor Estratégico', icon:'🎯', desc:'Você transmite conhecimento com autoridade. Sua comunicação é direta, educativa e transformadora. As pessoas te seguem para aprender e crescer.'},
+    {name:'Criador Visionário', icon:'🚀', desc:'Você inspira com sua visão de futuro. Inovação e criatividade são seus pontos fortes. Seu conteúdo gera aspiração e movimento.'},
+    {name:'Construtor de Comunidade', icon:'🤝', desc:'Você cria pertencimento. Sua força está na conexão genuína com a audiência. Engajamento e lealdade são seu diferencial competitivo.'},
+    {name:'Autoridade Especialista', icon:'🏆', desc:'Você é referência técnica no seu nicho. Profundidade de conhecimento e credibilidade são seus pilares. A audiência te vê como a voz definitiva do assunto.'},
+    {name:'Narrador de Histórias', icon:'✨', desc:'Você transforma experiências em conteúdo magnético. Storytelling é seu superpoder. Cada post carrega emoção e significado que conectam profundamente.'},
+    {name:'Ativador de Mudanças', icon:'⚡', desc:'Você provoca transformação. Seu conteúdo challenges o status quo e inspira ação imediata. A audiência te segue para mudar algo em suas vidas.'}
+  ];
+
+  const archetype = archetypes[Math.floor(Math.random()*archetypes.length)];
+
+  // Scores
+  const scores = {
+    posicionamento: 45 + Math.floor(Math.random()*45),
+    engajamento: 40 + Math.floor(Math.random()*50),
+    conteudo: 50 + Math.floor(Math.random()*45),
+    crescimento: 35 + Math.floor(Math.random()*55)
+  };
+
+  // Laws
+  const laws = [
+    {name:'Lei da Clareza', status: scores.posicionamento>70?'ok':scores.posicionamento>50?'warn':'bad'},
+    {name:'Lei da Consistência', status: scores.conteudo>70?'ok':scores.conteudo>50?'warn':'bad'},
+    {name:'Lei da Autoridade', status: scores.posicionamento>75?'ok':scores.posicionamento>55?'warn':'bad'},
+    {name:'Lei da Conexão', status: scores.engajamento>70?'ok':scores.engajamento>50?'warn':'bad'},
+    {name:'Lei da Narrativa', status: scores.conteudo>65?'ok':scores.conteudo>45?'warn':'bad'},
+    {name:'Lei da Prova Social', status: scores.crescimento>70?'ok':scores.crescimento>50?'warn':'bad'},
+    {name:'Lei da Singularidade', status: Math.random()>0.5?'ok':'warn'}
+  ];
+
+  const nicheLabel = niche || 'seu nicho';
+
+  // Content by network
+  const contentMap = {
+    instagram:['Carrosséis educativos','Reels de 15-30s','Stories com polls','BTS (bastidores)','Depoimentos de clientes','Posts de autoridade','Lives semanais'],
+    youtube:['Tutorial passo a passo','Análise de casos reais','Vídeo de opinião/polêmico','Séries temáticas','Shorts de 60s','Collab com criadores','Q&A ao vivo'],
+    tiktok:['Trend com twist do nicho','Dicas rápidas em 30s','Storytime de bastidor','Antes vs Depois','POV do especialista','Duet estratégico','Tutorial rápido'],
+    twitter:['Thread educativa','Hot take do nicho','Compartilha estudo de caso','Pergunta que gera debate','Retweet com comentário inteligente','Série diária','Poll estratégico'],
+    facebook:['Post longo com valor','Live no grupo','Poll no feed','Compartilha artigo com insight','Evento online','Vídeo nativo','História pessoal'],
+    linkedin:['Artigo de liderança','Carrossel de aprendizado','Conquista transparente','Opinião sobre tendências','Case de sucesso','Post de bastidor profissional','Thread de insights'],
+    tumblr:['Post estético com valor','Reblog estratégico','Long-form story','Série de curiosidades','Visual mood board','Q&A da comunidade','Manifesto de nicho']
+  };
+
+  const contents = contentMap[network]||contentMap['instagram'];
+
+  // Viral ideas
+  const viralIdeas = [
+    {icon:'🔥',title:`"${Math.floor(Math.random()*5)+3} erros que estão destruindo seu ${nicheLabel}"`,desc:'Formato lista + problema → viral em qualquer nicho',pct:82+Math.floor(Math.random()*15)},
+    {icon:'🚀',title:`"Como fui de 0 a 10k em ${nicheLabel} em 90 dias"`,desc:'Storytelling de transformação. Alta retenção.',pct:75+Math.floor(Math.random()*20)},
+    {icon:'💡',title:`"A verdade que ninguém te conta sobre ${nicheLabel}"`,desc:'Gera curiosidade + compartilhamento orgânico.',pct:78+Math.floor(Math.random()*18)},
+    {icon:'⚡',title:`"${nicheLabel}: o que mudou tudo pra mim"`,desc:'Pessoal + educativo. Cria conexão emocional.',pct:70+Math.floor(Math.random()*25)},
+    {icon:'🎯',title:`"Meu sistema para ${goal||'crescer'} em ${nicheLabel}"`,desc:'Conteúdo de autoridade + valor acionável.',pct:73+Math.floor(Math.random()*22)},
+    {icon:'📊',title:`"Analisei 100 perfis de ${nicheLabel}: o que aprendi"`,desc:'Dados + pesquisa = credibilidade máxima.',pct:80+Math.floor(Math.random()*16)}
+  ];
+
+  // Monetization
+  const monoAll = [
+    {icon:'📚',name:'Curso Digital',potential:'R$297-R$2.997'},
+    {icon:'🎓',name:'Mentoria em Grupo',potential:'R$497-R$1.997/mês'},
+    {icon:'💎',name:'Consultoria 1:1',potential:'R$500-R$5.000'},
+    {icon:'🌐',name:'Comunidade Paga',potential:'R$47-R$297/mês'},
+    {icon:'📧',name:'Newsletter Premium',potential:'R$29-R$97/mês'},
+    {icon:'🤝',name:'Parcerias/Afiliados',potential:'15-40% comissão'},
+    {icon:'📦',name:'Produto Físico',potential:'Margem 40-70%'},
+    {icon:'🎤',name:'Palestras/Eventos',potential:'R$2.000-R$20.000'}
+  ];
+
+  const mono = goal==='monetizar'?monoAll:monoAll.slice(0,5);
+
+  // Strengths/Weaknesses
+  const strengths=[
+    `Nicho bem definido em ${nicheLabel}`,
+    'Potencial de autoridade percebida',
+    'Arquétipo de comunicação consistente',
+    `Oportunidade real de crescimento no ${netData[network].name}`,
+    'Base para construção de comunidade engajada'
+  ];
+
+  const weaknesses=[
+    scores.posicionamento<60?'Bio e posicionamento pouco claros':'Frequência de postagem abaixo do ideal',
+    scores.engajamento<60?'Taxa de engajamento precisa de atenção':'CTA (chamadas para ação) pouco eficazes',
+    scores.conteudo<60?'Mix de formatos de conteúdo limitado':'Estratégia de hashtags e SEO fraca',
+    'Prova social (depoimentos/resultados) insuficiente',
+    'Monetização não está claramente estruturada'
+  ];
+
+  const opportunities=[
+    `Tendência crescente em ${nicheLabel} nos próximos 12 meses`,
+    `Colaborações estratégicas com outros perfis do segmento`,
+    `Conteúdo de bastidor e processo gera alta conexão`,
+    `Reaproveitamento de conteúdo em múltiplas plataformas`,
+    `Construção de lista de email paralela às redes`
+  ];
+
+  const errors=[
+    'Falta de consistência no calendário de publicações',
+    'Não usa os primeiros 3 segundos de vídeos estrategicamente',
+    'Bio não comunica proposta de valor em menos de 5 segundos',
+    'Ausência de sequência de conteúdo para novos seguidores',
+    'Não tem oferta clara integrada ao conteúdo'
+  ];
+
+  return {
+    profile: profileUrl,
+    network: netData[network],
+    niche: nicheLabel,
+    bizType, goal, archetype,
+    scores, laws, contents,
+    viralIdeas, mono, strengths, weaknesses,
+    opportunities, errors
+  };
+}
+
+// ============================================================
+// REPORT RENDERER
+// ============================================================
+function renderReport(d){
+  document.getElementById('report-profile-name').textContent = d.network.icon+' '+d.profile;
+  document.getElementById('report-subtitle').textContent =
+    `Análise estratégica para ${d.network.name} • Nicho: ${d.niche}`;
+
+  // SCORES
+  const sg = document.getElementById('score-grid');
+  sg.innerHTML='';
+  const scoreItems=[
+    {label:'Posicionamento',key:'posicionamento',cls:'blue'},
+    {label:'Engajamento',key:'engajamento',cls:'purple'},
+    {label:'Conteúdo',key:'conteudo',cls:'green'},
+    {label:'Crescimento',key:'crescimento',cls:'gold'}
+  ];
+  scoreItems.forEach(s=>{
+    const v=d.scores[s.key];
+    sg.innerHTML+=`
+    <div class="score-card ${s.cls} fade-in">
+      <div class="score-label">${s.label}</div>
+      <div class="score-number">${v}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);">de 100 pontos</div>
+      <div class="score-bar"><div class="score-bar-fill" style="width:${v}%"></div></div>
+    </div>`;
+  });
+
+  // ARCHETYPE
+  document.getElementById('archetype-card').innerHTML=`
+    <h3>🎭 Arquétipo Dominante</h3>
+    <div class="card-sub">Identidade estratégica de marca identificada pela IA</div>
+    <div class="archetype-display">
+      <div class="archetype-icon">${d.archetype.icon}</div>
+      <div class="archetype-info">
+        <h4>${d.archetype.name}</h4>
+        <p>${d.archetype.desc}</p>
+      </div>
+    </div>`;
+
+  // LAWS
+  const lawColors={ok:'#10b981',warn:'#f59e0b',bad:'#f87171'};
+  const lawLabels={ok:'✅ Forte',warn:'⚠️ Atenção',bad:'❌ Crítico'};
+  document.getElementById('laws-card').innerHTML=`
+    <h3>⚖️ Leis Universais de Crescimento</h3>
+    <div class="card-sub">Avaliação do perfil baseada nas 7 leis do crescimento digital</div>
+    <div class="laws-list">
+      ${d.laws.map(l=>`
+      <div class="law-item">
+        <div class="law-dot" style="background:${lawColors[l.status]}"></div>
+        <div class="law-name">${l.name}</div>
+        <div class="law-status law-${l.status}">${lawLabels[l.status]}</div>
+      </div>`).join('')}
+    </div>`;
+
+  // STRENGTHS
+  document.getElementById('strengths-card').innerHTML=`
+    <h3>💪 Pontos Fortes</h3>
+    <div class="card-sub">O que está funcionando no seu perfil</div>
+    <ul class="list-items">
+      ${d.strengths.map(s=>`<li><span class="icon">✅</span>${s}</li>`).join('')}
+    </ul>`;
+
+  // WEAKNESSES
+  document.getElementById('weaknesses-card').innerHTML=`
+    <h3>🔧 Pontos de Melhoria</h3>
+    <div class="card-sub">O que precisa de atenção imediata</div>
+    <ul class="list-items">
+      ${d.weaknesses.map(s=>`<li><span class="icon">⚠️</span>${s}</li>`).join('')}
+    </ul>`;
+
+  // OPPORTUNITIES
+  document.getElementById('opportunities-card').innerHTML=`
+    <h3>🚀 Oportunidades Estratégicas</h3>
+    <div class="card-sub">Onde existe potencial não explorado</div>
+    <ul class="list-items">
+      ${d.opportunities.map(s=>`<li><span class="icon">💡</span>${s}</li>`).join('')}
+    </ul>`;
+
+  // ERRORS
+  document.getElementById('errors-card').innerHTML=`
+    <h3>🚨 Erros Críticos</h3>
+    <div class="card-sub">O que está limitando seu crescimento agora</div>
+    <ul class="list-items">
+      ${d.errors.map(s=>`<li><span class="icon">❌</span>${s}</li>`).join('')}
+    </ul>`;
+
+  // GROWTH CHART
+  const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set'];
+  const base=100;
+  const growth=[];
+  let cur=base;
+  months.forEach(()=>{cur+=cur*(0.08+Math.random()*0.12);growth.push(Math.round(cur));});
+
+  document.getElementById('growth-card').innerHTML=`
+    <h3>📈 Projeção de Crescimento — 9 meses</h3>
+    <div class="card-sub">Estimativa baseada no plano estratégico recomendado</div>
+    <div class="chart-container">
+      <canvas id="growth-canvas" class="chart-canvas"></canvas>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;">
+      <div style="font-size:0.8rem;color:var(--text-secondary);">
+        📊 Seguidores projetados em 9 meses: <strong style="color:var(--accent-blue)">${growth[growth.length-1].toLocaleString('pt-BR')}</strong>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-secondary);">
+        📈 Crescimento total: <strong style="color:var(--accent-green)">+${Math.round((growth[growth.length-1]-base)/base*100)}%</strong>
+      </div>
+    </div>`;
+
+  requestAnimationFrame(()=>drawChart(months,growth));
+
+  // CONTENT
+  document.getElementById('content-card').innerHTML=`
+    <h3>🎨 Estratégia de Conteúdo Recomendada</h3>
+    <div class="card-sub">Formatos e tipos de conteúdo ideais para ${d.network.name}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+      ${d.contents.map((c,i)=>`<span class="tag ${['tag-info','tag-purple','tag-success','tag-warning'][i%4]}">${c}</span>`).join('')}
+    </div>
+    <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">Frequência Recomendada</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+        ${getFrequency(d.network.name)}
+      </div>
+    </div>`;
+
+  // VIRAL IDEAS
+  document.getElementById('viral-card').innerHTML=`
+    <h3>🔮 AI Viral Content Predictor</h3>
+    <div class="card-sub">Ideias de conteúdo com maior potencial de viralização</div>
+    <div class="content-grid">
+      ${d.viralIdeas.map(v=>`
+      <div class="content-idea">
+        <div class="idea-icon">${v.icon}</div>
+        <div class="idea-title">${v.title}</div>
+        <div class="idea-desc">${v.desc}</div>
+        <div class="viral-bar"><div class="viral-fill" style="width:${v.pct}%"></div></div>
+        <div class="viral-pct">${v.pct}% potencial viral</div>
+      </div>`).join('')}
+    </div>`;
+
+  // 90 DAYS PHASES
+  const pg = document.getElementById('phases-grid');
+  pg.innerHTML=`
+    <div class="phase-card phase-1 fade-in">
+      <div class="phase-number">Fase 1 • Dias 1-30</div>
+      <div class="phase-title">🔄 Reposicionamento</div>
+      <div class="phase-period">Fundação estratégica</div>
+      <ul class="list-items">
+        <li><span class="icon">🎯</span>Reescrever bio com proposta de valor clara</li>
+        <li><span class="icon">🎨</span>Definir identidade visual consistente</li>
+        <li><span class="icon">📋</span>Criar calendário editorial de 30 dias</li>
+        <li><span class="icon">🔍</span>Pesquisar top 10 concorrentes do nicho</li>
+        <li><span class="icon">📊</span>Instalar métricas de acompanhamento</li>
+      </ul>
+    </div>
+    <div class="phase-card phase-2 fade-in">
+      <div class="phase-number">Fase 2 • Dias 31-60</div>
+      <div class="phase-title">🚀 Crescimento</div>
+      <div class="phase-period">Aceleração de audiência</div>
+      <ul class="list-items">
+        <li><span class="icon">📹</span>Criar 8-12 conteúdos de alto valor</li>
+        <li><span class="icon">🤝</span>Fazer 3 colaborações estratégicas</li>
+        <li><span class="icon">💬</span>Engajar ativamente na comunidade do nicho</li>
+        <li><span class="icon">🔥</span>Testar formatos virais identificados</li>
+        <li><span class="icon">📧</span>Iniciar captação de leads (email)</li>
+      </ul>
+    </div>
+    <div class="phase-card phase-3 fade-in">
+      <div class="phase-number">Fase 3 • Dias 61-90</div>
+      <div class="phase-title">💰 Monetização</div>
+      <div class="phase-period">Geração de receita</div>
+      <ul class="list-items">
+        <li><span class="icon">💎</span>Lançar primeira oferta ao público</li>
+        <li><span class="icon">🌐</span>Criar comunidade ou programa</li>
+        <li><span class="icon">📈</span>Analisar dados e otimizar</li>
+        <li><span class="icon">🎤</span>Posicionar como referência do nicho</li>
+        <li><span class="icon">♻️</span>Criar sistema de conteúdo recorrente</li>
+      </ul>
+    </div>`;
+
+  // MONETIZATION
+  document.getElementById('mono-card').innerHTML=`
+    <h3>💰 Estratégia de Monetização</h3>
+    <div class="card-sub">Caminhos de geração de receita identificados para o seu perfil</div>
+    <div class="mono-grid">
+      ${d.mono.map(m=>`
+      <div class="mono-card">
+        <div class="mono-icon">${m.icon}</div>
+        <div class="mono-name">${m.name}</div>
+        <div class="mono-potential">${m.potential}</div>
+      </div>`).join('')}
+    </div>`;
+
+  // SCRIPT
+  document.getElementById('script-card').innerHTML=`
+    <h3>🎬 Estrutura de Roteiro de Vídeo</h3>
+    <div class="card-sub">Framework para criar vídeos com alta retenção</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+      ${[
+        {num:'01',label:'HOOK',desc:`"Você sabia que ${Math.floor(Math.random()*90)+10}% das pessoas erram isso em ${d.niche}?"`,time:'0-5s',color:'var(--accent-pink)'},
+        {num:'02',label:'PROBLEMA',desc:'Apresente o problema real que a audiência enfrenta. Use dados ou história pessoal.',time:'5-30s',color:'var(--accent-gold)'},
+        {num:'03',label:'CONTEÚDO',desc:`Entregue o valor prometido sobre ${d.niche}. Seja direto e acionável.`,time:'30s-80%'},
+        {num:'04',label:'CLÍMAX',desc:'O insight mais poderoso. A virada de chave. O momento "aha!" da audiência.',time:'80-90%',color:'var(--accent-purple)'},
+        {num:'05',label:'CTA',desc:'Chamada para ação clara: comentar, salvar, seguir ou clicar no link.',time:'90-100%',color:'var(--accent-green)'}
+      ].map(s=>`
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:16px;background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;">
+        <div style="font-size:1.2rem;font-weight:900;color:${s.color||'var(--accent-blue)'};min-width:28px">${s.num}</div>
+        <div style="flex:1;">
+          <div style="font-size:0.75rem;font-weight:800;color:${s.color||'var(--accent-blue)'};text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${s.label} ${s.time?`· ${s.time}`:''}</div>
+          <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">${s.desc}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+
+  // Show report
+  document.getElementById('analyzer-view').style.display='none';
+  document.getElementById('report-section').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function getFrequency(network){
+  const freq={
+    'Instagram':'<div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-blue)">3-5x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Posts/semana</div></div><div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-purple)">7-10x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Stories/dia</div></div><div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-pink)">2-4x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Reels/semana</div></div>',
+    'YouTube':'<div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-blue)">1-2x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Vídeos/semana</div></div><div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-purple)">3-5x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Shorts/semana</div></div>',
+    'TikTok':'<div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-blue)">1-3x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Vídeos/dia</div></div>',
+    'X/Twitter':'<div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-blue)">3-5x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Posts/dia</div></div><div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-purple)">2x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Threads/semana</div></div>',
+    'LinkedIn':'<div style="text-align:center;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;"><div style="font-size:1.4rem;font-weight:900;color:var(--accent-blue)">4-5x</div><div style="font-size:0.75rem;color:var(--text-secondary)">Posts/semana</div></div>'
+  };
+  return freq[network]||freq['Instagram'];
+}
+
+function drawChart(labels, data){
+  const canvas = document.getElementById('growth-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.offsetWidth;
+  const H = 200;
+  canvas.width = W;
+  canvas.height = H;
+
+  const pad = {top:20,right:20,bottom:30,left:50};
+  const cw = W-pad.left-pad.right;
+  const ch = H-pad.top-pad.bottom;
+  const max = Math.max(...data)*1.1;
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.04)';
+  ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.top+ch*(1-i/4);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+    ctx.fillStyle='rgba(148,163,184,0.5)';
+    ctx.font='10px Inter';
+    ctx.fillText(Math.round(max*i/4).toLocaleString('pt-BR'),4,y+3);
+  }
+
+  // Gradient fill
+  const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+  grad.addColorStop(0,'rgba(14,165,233,0.3)');
+  grad.addColorStop(1,'rgba(14,165,233,0)');
+
+  // Line
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x=pad.left+cw*(i/(data.length-1));
+    const y=pad.top+ch*(1-v/max);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='rgba(14,165,233,0.9)';
+  ctx.lineWidth=2.5;
+  ctx.lineJoin='round';
+  ctx.stroke();
+
+  // Fill
+  ctx.lineTo(pad.left+cw,pad.top+ch);
+  ctx.lineTo(pad.left,pad.top+ch);
+  ctx.closePath();
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  // Purple line (target)
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x=pad.left+cw*(i/(data.length-1));
+    const y=pad.top+ch*(1-(v*0.6)/max);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='rgba(139,92,246,0.5)';
+  ctx.lineWidth=1.5;
+  ctx.setLineDash([5,5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle='rgba(148,163,184,0.7)';
+  ctx.font='10px Inter';
+  ctx.textAlign='center';
+  labels.forEach((l,i)=>{
+    const x=pad.left+cw*(i/(labels.length-1));
+    ctx.fillText(l,x,H-8);
+  });
+
+  // Dots
+  data.forEach((v,i)=>{
+    const x=pad.left+cw*(i/(data.length-1));
+    const y=pad.top+ch*(1-v/max);
+    ctx.beginPath();
+    ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle='#0ea5e9';
+    ctx.fill();
+    ctx.strokeStyle='#020408';
+    ctx.lineWidth=2;
+    ctx.stroke();
+  });
+}
+</script>
+
+</body>
+  </html>
